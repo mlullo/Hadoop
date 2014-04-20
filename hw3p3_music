@@ -21,27 +21,22 @@ public class Li_Lullo_Martin_exercise3v2 extends Configured implements Tool {
 
 		}
 		// this is the map function
-		public void map(LongWritable key, Text inputLine, OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
+		public void map(LongWritable key, Text value, OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
 		        // this takes a line of input and makes it a string		
 			String line = value.toString();
-                        // splits the inputs on the commas
-			String[] splits = line.split(",");
+                        // split the inputs on the commas
+			String[] split = line.split(",");
 
 			// want to take the years b/tw 2000-2010 (field 165) and collect and output 
 			// artist name, duration and song title.
-			String song = split[0].trim[];
-			String artist = split[1].trim[];
-			String duration = split[2].trim[];		 
+			String song = split[0].trim();
+			String artist = split[2].trim();
+			String duration = split[3].trim();		 
 
-	    	//for(int i = 5; i <166; i++)
-	        //   		tokenizer.nextToken();
+	    	
 
-	    	//int year = Integer.parseInt(tokenizer.nextToken());
-
-	    	//if(year >=2000 && year <=2010) 
-
-		if (splits[splits[155:165]{
-	    		fields.set(artist+" "+duration+" "+title);
+		if (Integer.parseInt (split[split.length-223].trim()) >= 2000 && Integer.parseInt(split[split.length-223].trim())<=2010) {
+	    		fields.set(artist+"							 "+duration+" 							"+song);
 		output.collect(fields, dummyValue);
 	    	}
 		}
@@ -50,7 +45,7 @@ public class Li_Lullo_Martin_exercise3v2 extends Configured implements Tool {
 	
 
 	public int run(String[] args) throws Exception{
-		JobConf conf = new JobConf(getConf(), Li_Lullo_Martin_exercise3.class);
+		JobConf conf = new JobConf(getConf(), Li_Lullo_Martin_exercise3v2.class);
 		conf.setJobName("hw2ex3v2");
 
 		conf.setOutputKeyClass(Text.class);
