@@ -1,0 +1,144 @@
+import json
+from numpy import array, append, shape, expand_dims, tile, swapaxes, repeat, multiply
+        
+class Net:
+     nodeList = []
+     
+     def __init__(self, name, nodeList):
+            self.name = name
+            self.nodeList = nodeList
+     
+     def displayNetName(self):
+            print "Name : ", self.name
+
+     def addNode(self, nodeName, states, cpt, parents):
+        self.nodeList.append(Node(nodeName, states, cpt, parents))
+        
+     def displayNet(self):
+             print self.name
+             
+     def jdefault(self,o):
+                return o.__dict__
+                
+     def getNode(self,inputName):
+             for node in self.nodeList:
+                 if inputName == node.nodeName:
+                     print "Node found: ", node.nodeName
+                     return node
+                     
+     # def saveJSON(self, filepath):
+     #     with open(filePath, 'w') as f:    
+     #           json.dump(self, f, default=net.jdefault, indent = 4, sort_keys=True)
+               
+     # def loadJSON(self,filePath):
+     #     with open("C:/Users/shrilata/Dropbox/MSiA/Spring 2014/Python/test.json") as json_file:
+     #          json_data = json.load(json_file)
+     #          netName = json_data["name"]
+     #          nodeListJSON = json_data["nodeList"]
+     #          nodeListTemp = []
+     #          nodeList1 = []
+     #          jsonParseFlag = "TRUE"
+     #          for node in nodeListJSON:
+     #              nodeListTemp.append(node)
+     #          for value in nodeListTemp:
+     #             nodeList1.append(Node(value["nodeName"], value["states"], value["cpt"], jsonParseFlag, value["parents"]))
+     #          net1 = Net(netName, nodeList1)
+     #          return net1
+
+class Node(Net):
+    'Common base class for all nodes'
+    
+    # jsonParseFlag = "FALSE"
+    
+    def __init__(self, nodeName, states, prob, parents=None):
+        # Net.__init__(self) # needed to get nodeList of parent?
+        self.nodeName = nodeName
+        self.states = states
+        self.parents = parents
+        self.cpt = prob
+        # if jsonParseFlag == "TRUE":
+        self.potential = array(self.cpt)
+        if self.parents == None:
+            self.dimension = len(prob)
+        else:
+            self.dimension = array(prob).shape
+        self.tmpPot = None
+
+    def setEvidence(self,stateName):
+        for state in self.states:
+            if state == stateName:
+                if self.parents == None:
+                    self.potential = self.potential[states.index(state)]
+                else:
+                    numrows = self.dimension[0]
+                    for d in range(1,len(self.dimension)-1):
+                        numrows = numrows*self.dimension[d]
+                    temparray = self.potential.reshape(numrows,self.dimension[-1])
+                    potentialarray = array([row[i] for row in temparray])
+                    self.potential = potentialarray.reshape(self.dimension[0:-1])
+
+    def getBelief(net):
+        variables = sorted(net.nodeList)
+        jd = 1
+        for var in variables:
+
+            dimlist = []
+
+            if var.parents is None: # add all dimensions except self
+                for i in range(0,len(nodeList)):
+                    if var == variables[i]:
+                        dimlist.append(1)
+                    else:
+                        var.tmpPot = expand_dims(var.potential,axis=i)
+                        dimlist.append(variables[i].dimension[-1])  
+
+            else: # add self, skip existing
+                dimNames = reverse(var.parents)
+                if sorted(dimNames) is not dimNames:
+                    var.tmpPot = swapaxes(var.potential,0,1) # only handles 2 axes - what if more than 2 parents?
+                var.tmpPot = expand_dims(var.tmpPot, axis=variables.index(var))
+                dimlist = repeat(1, len(nodeList))#.tolist()
+                dimlist[variables.index(var)] = var.dimension[-1]
+
+            var.tmpPot = tile(var.tmpPot,dimlist) #replicate
+
+            jd = multiply(jd, var.tmpPot)
+
+            sumout = range(0,len(nodeList))
+            if var == self.nodeName:
+                del(sumout[variables.index(var)])
+
+        unnormalizedTmp = sum(jd,axis=(sumout))
+        return unnormalizedTmp/sum(unnormalizedTmp)
+
+
+# class NumpyAwareJSONEncoder(json.JSONEncoder):
+#     def default(self, obj):
+#         if isinstance(obj, numpy.ndarray) and obj.ndim == 1:
+#                 return obj.tolist()
+#         elif isinstance(obj, numpy.generic):
+#             return obj.item()
+#         return json.JSONEncoder.default(self, obj)
+
+
+# nodeListInitializer = []
+# net = Net("Shri's sample net",nodeListInitializer)
+# A = net.addNode('A',['a1','a2'],[0.9,0.1],None)
+# C = net.addNode('C',['c1','c2','c3','c4'],[0.1,0.2,0.3,0.4],None)
+# probB = [
+#                      [ [0.2,0.4,0.4] , [0.33,0.33,0.34 ] ] , 
+#                      [ [0.1,0.5,0.4] , [0.3,0.1,0.6 ] ] , 
+#                      [ [0.01,0.01,0.98] , [0.2,0.7,0.1 ] ] , 
+#                      [ [0.2,0.1,0.7] , [0.9,0.05,0.05 ] ] 
+#                  ]
+# B = net.addNode('B',['b1','b2','b3'], probB,['A','C'])
+# net.displayNet
+# B2 = net.getNode("D")
+
+# filePath = 'test.json'   
+# net.saveJSON(filePath) 
+# newNet = net.loadJSON(filePath)
+ 
+    
+# print(newNet.getNode("A"))
+        
